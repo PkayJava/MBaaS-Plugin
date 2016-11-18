@@ -1,0 +1,76 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+}
+
+plugins {
+    id 'java'
+    id 'idea'
+    id 'maven'
+    id 'maven-publish'
+    id 'net.researchgate.release' version '2.4.1'
+    id "com.jfrog.bintray" version "1.7"
+}
+
+ext {
+    jooqVersion = '3.8.6'
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile gradleApi()
+    compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.15.1'
+    compile group: 'org.sql2o', name: 'sql2o', version: '1.6.0-RC3'
+    compile group: 'com.mashape.unirest', name: 'unirest-java', version: '1.4.9'
+}
+
+release {
+    tagTemplate = '$name-$version'
+}
+
+task(startmessage) << {
+    println 'starting build'
+}
+
+task(printversion) << {
+    println project.version
+}
+
+publishing {
+    publications {
+        MyPublication(MavenPublication) {
+            from components.java
+            groupId 'com.angkorteam.mbaas'
+            artifactId 'plugin'
+            version project.version
+        }
+    }
+}
+
+bintray {
+    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+    publications = ['MyPublication']
+    pkg {
+        repo = 'maven'
+        name = 'MBaaS-Plugin'
+        userOrg = ''
+        licenses = ['Apache-2.0']
+        vcsUrl = 'https://github.com/PkayJava/MBaaS-Plugin.git'
+        labels = ['Socheat KHAUV', 'PkayJava']
+        publicDownloadNumbers = true
+        version {
+            name = project.version
+            desc = 'MBaaS Plugin'
+            vcsTag = project.version
+            attributes = ['mbaas-plugin': 'com.angkorteam.mbaas:plugin']
+        }
+    }
+}
+
+beforeReleaseBuild.dependsOn startmessage
+afterReleaseBuild.dependsOn printversion, jar, bintrayUpload
