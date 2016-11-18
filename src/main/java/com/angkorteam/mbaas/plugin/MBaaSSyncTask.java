@@ -1,5 +1,6 @@
 package com.angkorteam.mbaas.plugin;
 
+import com.google.gson.Gson;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
@@ -47,11 +48,13 @@ public class MBaaSSyncTask extends Task {
         String api = server + "/api/system/sync";
         HttpRequestWithBody request = Unirest.post(api);
         request = request.basicAuth(extension.getLogin(), extension.getPassword());
+        Gson gson = new Gson();
         try {
-            HttpResponse<Sync> response = request.asObject(Sync.class);
+            HttpResponse<String> response = request.asString();
             if (response.getStatus() == 200) {
-                syncPage(source, sql2o, response.getBody());
-                syncRest(source, sql2o, response.getBody());
+                Response temp = gson.fromJson(response.getBody(), Response.class);
+                syncPage(source, sql2o, temp.getData());
+                syncRest(source, sql2o, temp.getData());
             }
         } catch (UnirestException e) {
             e.printStackTrace();
