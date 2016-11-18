@@ -1,7 +1,6 @@
 package com.angkorteam.mbaas.plugin;
 
 import com.google.common.base.Strings;
-import com.google.gson.Gson;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
@@ -64,45 +63,78 @@ public class MBaaSTask extends Task {
         }
     }
 
-    public static void main(String[] args) throws IOException {
-        String sqlite = "/opt/home/socheat/Documents/git/PkayJava/MBaaS-Plugin/mbaas.db";
+    @TaskAction
+    public void mbaasReset() throws IOException {
+        String sqlite = lookupDatabase(this.database);
         ensureDatabase(sqlite);
-        ensureServer(sqlite);
-
-        File source = new File("/opt/home/socheat/Documents/git/PkayJava/MBaaS-Plugin/src/main/java");
-        String sourcePath = source.getAbsolutePath();
-        Collection<File> files = FileUtils.listFiles(source, new String[]{"groovy", "html"}, true);
-
+        File source = lookupSource();
         Sql2o sql2o = new Sql2o("jdbc:sqlite:" + sqlite, "", "");
-        Sync sync = new Sync();
-        // page to sync, html + groovy
-        pageForSync(source, sql2o, sync);
-        // rest to sync, groovy
-        restForSync(source, sql2o, sync);
-        // page to delete sync, html + groovy
-        pageForDeleteSync(source, sql2o, sync);
-        // rest to delete sync, groovy
-        restForDeleteSync(source, sql2o, sync);
+        resetPage(source, sql2o);
+        resetRest(source, sql2o);
+    }
 
-        Server server;
+    protected static void resetRest(File source, Sql2o sql2o) throws IOException {
         try (Connection connection = sql2o.open()) {
-            Query query = connection.createQuery("select _id as clientId, name, address, login, password from server limit 0,1");
-            server = query.executeAndFetchFirst(Server.class);
-        }
-
-        String api = server.getAddress() + "/api/system/sync";
-        HttpRequestWithBody request = Unirest.post(api);
-        request = request.basicAuth(server.getLogin(), server.getPassword());
-        Gson gson = new Gson();
-        try {
-            HttpResponse<String> response = request.asString();
-            if (response.getStatus() == 200) {
-                Response temp = gson.fromJson(response.getBody(), Response.class);
-                syncPage(source, sql2o, temp.getData());
-                syncRest(source, sql2o, temp.getData());
+            Query query = connection.createQuery("select " +
+                    "_id as clientId, " +
+                    "groovy_path as groovyPath, " +
+                    "client_groovy as clientGroovy, " +
+                    "client_groovy_crc32 as clientGroovyCrc32, " +
+                    "server_groovy as serverGroovy, " +
+                    "server_groovy_crc32 as serverGroovyCrc32, " +
+                    "groovy_conflicted as groovyConflicted, " +
+                    "rest_id as restId from rest");
+            List<Rest> rests = query.executeAndFetch(Rest.class);
+            if (rests != null && !rests.isEmpty()) {
+                for (Rest rest : rests) {
+                    File groovyFile = new File(source, rest.getGroovyPath());
+                    groovyFile.getParentFile().mkdirs();
+                    FileUtils.write(groovyFile, rest.getClientGroovy(), "UTF-8");
+                    if (rest.isGroovyConflicted()) {
+                        File groovyFileServer = new File(source, rest.getGroovyPath() + ".server");
+                        FileUtils.write(groovyFileServer, rest.getServerGroovy(), "UTF-8");
+                    }
+                }
             }
-        } catch (UnirestException e) {
-            e.printStackTrace();
+        }
+    }
+
+    protected static void resetPage(File source, Sql2o sql2o) throws IOException {
+        try (Connection connection = sql2o.open()) {
+            Query query = connection.createQuery("select " +
+                    "_id as clientId, " +
+                    "html_path as htmlPath, " +
+                    "client_html as clientHtml, " +
+                    "client_html_crc32 as clientHtmlCrc32, " +
+                    "server_html as serverHtml, " +
+                    "server_html_crc32 as serverHtmlCrc32, " +
+                    "html_conflicted as htmlConflicted, " +
+                    "groovy_path as groovyPath, " +
+                    "client_groovy as clientGroovy, " +
+                    "client_groovy_crc32 as clientGroovyCrc32, " +
+                    "server_groovy as serverGroovy, " +
+                    "server_groovy_crc32 as serverGroovyCrc32, " +
+                    "groovy_conflicted as groovyConflicted, " +
+                    "page_id as pageId from page");
+            List<Page> pages = query.executeAndFetch(Page.class);
+            if (pages != null && !pages.isEmpty()) {
+                for (Page page : pages) {
+                    File groovyFile = new File(source, page.getGroovyPath());
+                    groovyFile.getParentFile().mkdirs();
+                    FileUtils.write(groovyFile, page.getClientGroovy(), "UTF-8");
+                    File htmlFile = new File(source, page.getHtmlPath());
+                    htmlFile.getParentFile().mkdirs();
+                    FileUtils.write(htmlFile, page.getClientHtml(), "UTF-8");
+                    if (page.isHtmlConflicted()) {
+                        File htmlFileServer = new File(source, page.getHtmlPath() + ".server");
+                        FileUtils.write(htmlFileServer, page.getServerHtml(), "UTF-8");
+                    }
+                    if (page.isGroovyConflicted()) {
+                        File groovyFileServer = new File(source, page.getGroovyPath() + ".server");
+                        FileUtils.write(groovyFileServer, page.getServerGroovy(), "UTF-8");
+                    }
+                }
+            }
         }
     }
 
