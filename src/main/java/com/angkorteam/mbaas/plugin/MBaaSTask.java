@@ -26,6 +26,14 @@ public class MBaaSTask extends Task {
 
     private String database;
 
+    public String getDatabase() {
+        return database;
+    }
+
+    public void setDatabase(String database) {
+        this.database = database;
+    }
+
     @TaskAction
     public void mbaasSync() throws IOException {
         mbaasServer();
