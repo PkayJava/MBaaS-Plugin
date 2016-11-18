@@ -393,7 +393,7 @@ public abstract class Task extends DefaultTask {
                     if (!rest.isGroovyConflicted() || !groovyFileServer.exists()) {
                         String clientGroovyCrc32 = String.valueOf(FileUtils.checksumCRC32(groovyFile));
                         Rest restGson = new Rest();
-                        restGson.setRestId(restGson.getRestId());
+                        restGson.setRestId(rest.getRestId());
                         restGson.setClientGroovy(FileUtils.readFileToString(groovyFile, "UTF-8"));
                         restGson.setClientGroovyCrc32(clientGroovyCrc32);
                         restGson.setServerGroovyCrc32(rest.getServerGroovyCrc32());
