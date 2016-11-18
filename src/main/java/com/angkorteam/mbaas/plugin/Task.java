@@ -375,7 +375,7 @@ public abstract class Task extends DefaultTask {
         Collection<File> files = FileUtils.listFiles(source, new String[]{"groovy"}, true);
         try (Connection connection = sql2o.open()) {
             for (File groovyFile : files) {
-                String groovyPath = groovyFile.getAbsolutePath().substring(sourcePath.length());
+                String groovyPath = groovyFile.getAbsolutePath().substring(sourcePath.length() + 1);
                 Query query = connection.createQuery("select " +
                         "_id as clientId, " +
                         "groovy_path as groovyPath, " +
@@ -413,7 +413,7 @@ public abstract class Task extends DefaultTask {
         try (Connection connection = sql2o.open()) {
             // page to sync, html + groovy
             for (File groovyFile : files) {
-                String groovyPath = groovyFile.getAbsolutePath().substring(sourcePath.length());
+                String groovyPath = groovyFile.getAbsolutePath().substring(sourcePath.length() + 1);
                 Query query = connection.createQuery("select " +
                         "_id as clientId, " +
                         "html_path as htmlPath, " +

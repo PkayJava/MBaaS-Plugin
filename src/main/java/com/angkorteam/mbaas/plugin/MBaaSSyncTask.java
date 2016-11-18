@@ -25,8 +25,6 @@ public class MBaaSSyncTask extends Task {
         ensureDatabase(sqlite);
 
         File source = lookupSource();
-        String sourcePath = source.getAbsolutePath();
-        Collection<File> files = FileUtils.listFiles(source, new String[]{"groovy", "html"}, true);
         Sql2o sql2o = new Sql2o("jdbc:sqlite:" + sqlite, "", "");
         Sync sync = new Sync();
         // page to sync, html + groovy
