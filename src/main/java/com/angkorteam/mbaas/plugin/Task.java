@@ -394,7 +394,7 @@ public abstract class Task extends DefaultTask {
                         String clientGroovyCrc32 = String.valueOf(FileUtils.checksumCRC32(groovyFile));
                         Rest restGson = new Rest();
                         restGson.setRestId(restGson.getRestId());
-                        restGson.setClientGroovy(rest.getClientGroovy());
+                        restGson.setClientGroovy(FileUtils.readFileToString(groovyFile, "UTF-8"));
                         restGson.setClientGroovyCrc32(clientGroovyCrc32);
                         restGson.setServerGroovyCrc32(rest.getServerGroovyCrc32());
                         sync.addRest(restGson);
@@ -442,9 +442,9 @@ public abstract class Task extends DefaultTask {
                             String clientGroovyCrc32 = String.valueOf(FileUtils.checksumCRC32(groovyFile));
                             Page pageGson = new Page();
                             pageGson.setPageId(page.getPageId());
-                            pageGson.setClientGroovy(page.getClientGroovy());
+                            pageGson.setClientGroovy(FileUtils.readFileToString(groovyFile, "UTF-8"));
                             pageGson.setClientGroovyCrc32(clientGroovyCrc32);
-                            pageGson.setClientHtml(page.getClientHtml());
+                            pageGson.setClientHtml(FileUtils.readFileToString(htmlFile, "UTF-8"));
                             pageGson.setClientHtmlCrc32(clientHtmlCrc32);
                             pageGson.setServerGroovyCrc32(page.getServerGroovyCrc32());
                             sync.addPage(pageGson);
