@@ -14,9 +14,6 @@ public class Plugin implements org.gradle.api.Plugin<Project> {
         project.getTasks().withType(MBaaSSyncTask.class);
         project.getTasks().create("mbaasSync", MBaaSSyncTask.class);
 
-        project.getTasks().withType(MBaaSServerTask.class);
-        project.getTasks().create("mbaasServer", MBaaSServerTask.class);
-
         project.getTasks().withType(MBaaSResetTask.class);
         project.getTasks().create("mbaasReset", MBaaSResetTask.class);
     }

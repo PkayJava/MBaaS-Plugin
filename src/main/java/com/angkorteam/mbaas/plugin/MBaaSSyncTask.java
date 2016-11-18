@@ -6,8 +6,6 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.HttpRequestWithBody;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.tasks.TaskAction;
-import org.sql2o.Connection;
-import org.sql2o.Query;
 import org.sql2o.Sql2o;
 
 import java.io.File;
@@ -24,7 +22,6 @@ public class MBaaSSyncTask extends Task {
         MBaaSExtension extension = getExtension();
         String sqlite = lookupDatabase(extension.getDatabase());
         ensureDatabase(sqlite);
-        ensureServer(sqlite);
 
         File source = lookupSource();
         String sourcePath = source.getAbsolutePath();
@@ -40,15 +37,16 @@ public class MBaaSSyncTask extends Task {
         // rest to delete sync, groovy
         restForDeleteSync(source, sql2o, sync);
 
-        Server server;
-        try (Connection connection = sql2o.open()) {
-            Query query = connection.createQuery("select _id as clientId, name, address, login, password from server limit 0,1");
-            server = query.executeAndFetchFirst(Server.class);
+        String server = null;
+        if (extension.getServer().endsWith("/")) {
+            server = extension.getServer().substring(0, extension.getServer().length() - 1);
+        } else {
+            server = extension.getServer();
         }
 
-        String api = server.getAddress() + "/api/system/sync";
+        String api = server + "/api/system/sync";
         HttpRequestWithBody request = Unirest.post(api);
-        request = request.basicAuth(server.getLogin(), server.getPassword());
+        request = request.basicAuth(extension.getLogin(), extension.getPassword());
         try {
             HttpResponse<Sync> response = request.asObject(Sync.class);
             if (response.getStatus() == 200) {
@@ -56,6 +54,7 @@ public class MBaaSSyncTask extends Task {
                 syncRest(source, sql2o, response.getBody());
             }
         } catch (UnirestException e) {
+            e.printStackTrace();
         }
     }
 

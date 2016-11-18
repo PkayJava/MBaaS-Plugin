@@ -1,11 +1,6 @@
 package com.angkorteam.mbaas.plugin;
 
 import com.google.common.base.Strings;
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
-import com.mashape.unirest.request.HttpRequestWithBody;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.DefaultTask;
@@ -13,7 +8,6 @@ import org.sql2o.Connection;
 import org.sql2o.Query;
 import org.sql2o.Sql2o;
 
-import java.io.Console;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -38,46 +32,9 @@ public abstract class Task extends DefaultTask {
         return getProject().getExtensions().findByType(MBaaSExtension.class);
     }
 
-    protected static void ensureServer(String database) {
-        Sql2o sql2o = new Sql2o("jdbc:sqlite:" + database, "", "");
-        try (Connection connection = sql2o.open()) {
-            if (connection.createQuery("select count(*) from server").executeScalar(Integer.class) <= 0) {
-                while (true) {
-                    Console console = System.console();
-                    String server = console == null ? "http://yp.angkorteam.com" : console.readLine("> Please enter your server: ");
-                    if (server.endsWith("/")) {
-                        server = server.substring(0, server.length() - 1);
-                    }
-                    String api = server + "/api/system/monitor";
-                    String login = console == null ? "service" : console.readLine("> Please enter your username: ");
-                    String password = console == null ? "service" : new String(console.readPassword("> Please enter your password: "));
-                    HttpRequestWithBody request = Unirest.post(api);
-                    request = request.basicAuth(login, password);
-                    HttpResponse<JsonNode> response = null;
-                    try {
-                        response = request.asJson();
-                        if (response.getStatus() == 200) {
-                            Query query = connection.createQuery("insert into server(name, address, login, password) values(:name, :address, :login, :password)");
-                            query.addParameter("name", "MBaaS");
-                            query.addParameter("address", server);
-                            query.addParameter("login", login);
-                            query.addParameter("password", password);
-                            query.executeUpdate();
-                            break;
-                        }
-                    } catch (UnirestException e) {
-                    }
-                }
-            }
-        }
-    }
-
     protected static void ensureDatabase(String database) {
         Sql2o sql2o = new Sql2o("jdbc:sqlite:" + database, "", "");
         try (org.sql2o.Connection connection = sql2o.open()) {
-            // connection.createQuery("drop table if exists server").executeUpdate();
-            connection.createQuery("create table IF NOT EXISTS server (_id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(100), address VARCHAR (255), login VARCHAR (255), password VARCHAR(255))").executeUpdate();
-            connection.createQuery("CREATE UNIQUE INDEX IF NOT EXISTS index_server_name on server(name)").executeUpdate();
             // connection.createQuery("drop table if exists page").executeUpdate();
             connection.createQuery("create table IF NOT EXISTS page (_id INTEGER PRIMARY KEY AUTOINCREMENT, html_conflicted BOOLEAN, groovy_conflicted BOOLEAN, html_path VARCHAR(255), groovy_path VARCHAR(255), client_groovy TEXT, client_html TEXT, server_groovy TEXT, server_html TEXT, page_id VARCHAR(100), client_groovy_crc32 VARCHAR(100), server_groovy_crc32 VARCHAR(100), client_html_crc32 VARCHAR(100), server_html_crc32 VARCHAR(100))").executeUpdate();
             connection.createQuery("CREATE INDEX IF NOT EXISTS index_page_server_groovy_crc32 on page(server_groovy_crc32)").executeUpdate();
