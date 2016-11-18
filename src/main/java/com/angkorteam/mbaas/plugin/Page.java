@@ -1,5 +1,8 @@
 package com.angkorteam.mbaas.plugin;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by socheat on 11/18/16.
  */
@@ -7,31 +10,57 @@ public class Page {
 
     private Integer clientId;
 
+    @Expose
+    @SerializedName("htmlPath")
     private String htmlPath;
 
-    private String clientHtml;
-
-    private String clientHtmlCrc32;
-
-    private String serverHtml;
-
-    private String serverHtmlCrc32;
-
-    private Boolean htmlConflicted;
-
+    @Expose
+    @SerializedName("groovyPath")
     private String groovyPath;
 
+    @Expose
+    @SerializedName("pageId")
+    private String pageId;
+
+    @Expose
+    @SerializedName("clientHtml")
+    private String clientHtml;
+
+    @Expose
+    @SerializedName("clientHtmlCrc32")
+    private String clientHtmlCrc32;
+
+    @Expose
+    @SerializedName("clientGroovy")
     private String clientGroovy;
 
+    @Expose
+    @SerializedName("clientGroovyCrc32")
     private String clientGroovyCrc32;
 
+    @Expose
+    @SerializedName("htmlConflicted")
+    private Boolean htmlConflicted;
+
+    @Expose
+    @SerializedName("serverHtml")
+    private String serverHtml;
+
+    @Expose
+    @SerializedName("serverHtmlCrc32")
+    private String serverHtmlCrc32;
+
+    @Expose
+    @SerializedName("serverGroovy")
     private String serverGroovy;
 
+    @Expose
+    @SerializedName("serverGroovyCrc32")
     private String serverGroovyCrc32;
 
+    @Expose
+    @SerializedName("groovyConflicted")
     private Boolean groovyConflicted;
-
-    private String pageId;
 
     public Integer getClientId() {
         return clientId;

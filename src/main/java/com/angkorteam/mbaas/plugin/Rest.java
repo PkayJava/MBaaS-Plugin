@@ -1,5 +1,8 @@
 package com.angkorteam.mbaas.plugin;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by socheat on 11/18/16.
  */
@@ -7,19 +10,33 @@ public class Rest {
 
     private Integer clientId;
 
+    @Expose
+    @SerializedName("groovyPath")
     private String groovyPath;
 
+    @Expose
+    @SerializedName("restId")
+    private String restId;
+
+    @Expose
+    @SerializedName("clientGroovy")
     private String clientGroovy;
 
+    @Expose
+    @SerializedName("clientGroovyCrc32")
     private String clientGroovyCrc32;
 
+    @Expose
+    @SerializedName("serverGroovy")
     private String serverGroovy;
 
+    @Expose
+    @SerializedName("serverGroovyCrc32")
     private String serverGroovyCrc32;
 
+    @Expose
+    @SerializedName("groovyConflicted")
     private Boolean groovyConflicted;
-
-    private String restId;
 
     public Integer getClientId() {
         return clientId;
