@@ -197,19 +197,27 @@ public abstract class Task extends DefaultTask {
                         File groovyFile;
                         if (StringUtils.equals(serverPage.getClientGroovyCrc32(), clientPage.getClientGroovyCrc32())) {
                             groovyFile = new File(source, serverPage.getGroovyPath());
+                            Query query = connection.createQuery("update page set client_groovy = :client_groovy, client_groovy_crc32 = :client_groovy_crc32, server_groovy = :server_groovy, server_groovy_crc32 = :server_groovy_crc32 where page_id = :page_id");
+                            query.addParameter("server_groovy", serverPage.getServerGroovy());
+                            query.addParameter("server_groovy_crc32", serverPage.getServerGroovyCrc32());
+                            query.addParameter("client_groovy", serverPage.getServerGroovy());
+                            query.addParameter("client_groovy_crc32", serverPage.getServerGroovyCrc32());
+                            query.addParameter("page_id", serverPage.getPageId());
+                            query.executeUpdate();
                         } else {
                             groovyFile = new File(source, serverPage.getGroovyPath() + ".server");
+                            Query query = connection.createQuery("update page set server_groovy = :server_groovy, server_groovy_crc32 = :server_groovy_crc32 where page_id = :page_id");
+                            query.addParameter("server_groovy", serverPage.getServerGroovy());
+                            query.addParameter("server_groovy_crc32", serverPage.getServerGroovyCrc32());
+                            query.addParameter("page_id", serverPage.getPageId());
+                            query.executeUpdate();
                         }
                         if (groovyFile.exists()) {
                             groovyFile.delete();
                         } else {
                             groovyFile.getParentFile().mkdirs();
                         }
-                        Query query = connection.createQuery("update page set server_groovy = :server_groovy, server_groovy_crc32 = :server_groovy_crc32 where page_id = :page_id");
-                        query.addParameter("server_groovy", serverPage.getServerGroovy());
-                        query.addParameter("server_groovy_crc32", serverPage.getServerGroovyCrc32());
-                        query.addParameter("page_id", serverPage.getPageId());
-                        query.executeUpdate();
+                        FileUtils.write(groovyFile, serverPage.getServerGroovy(), "UTF-8");
                     }
 
                     if (!serverPage.isHtmlConflicted()) {
@@ -231,20 +239,27 @@ public abstract class Task extends DefaultTask {
                         File htmlFile;
                         if (StringUtils.equals(serverPage.getClientHtmlCrc32(), clientPage.getClientHtmlCrc32())) {
                             htmlFile = new File(source, serverPage.getHtmlPath());
+                            Query query = connection.createQuery("update page set client_html_crc32 = :client_html_crc32, client_html = :client_html, server_html = :server_html, server_html_crc32 = :server_html_crc32 where page_id = :page_id");
+                            query.addParameter("server_html", serverPage.getServerHtml());
+                            query.addParameter("server_html_crc32", serverPage.getServerHtmlCrc32());
+                            query.addParameter("client_html", serverPage.getServerHtml());
+                            query.addParameter("client_html_crc32", serverPage.getServerHtmlCrc32());
+                            query.addParameter("page_id", serverPage.getPageId());
+                            query.executeUpdate();
                         } else {
                             htmlFile = new File(source, serverPage.getHtmlPath() + ".server");
+                            Query query = connection.createQuery("update page set server_html = :server_html, server_html_crc32 = :server_html_crc32 where page_id = :page_id");
+                            query.addParameter("server_html", serverPage.getServerHtml());
+                            query.addParameter("server_html_crc32", serverPage.getServerHtmlCrc32());
+                            query.addParameter("page_id", serverPage.getPageId());
+                            query.executeUpdate();
                         }
-
                         if (htmlFile.exists()) {
                             htmlFile.delete();
                         } else {
                             htmlFile.getParentFile().mkdirs();
                         }
-                        Query query = connection.createQuery("update page set server_html = :server_html, server_html_crc32 = :server_html_crc32 where page_id = :page_id");
-                        query.addParameter("server_html", serverPage.getServerHtml());
-                        query.addParameter("server_html_crc32", serverPage.getServerHtmlCrc32());
-                        query.addParameter("page_id", serverPage.getPageId());
-                        query.executeUpdate();
+                        FileUtils.write(htmlFile, serverPage.getServerHtml(), "UTF-8");
                     }
                 }
             }
@@ -304,11 +319,22 @@ public abstract class Task extends DefaultTask {
                         query.executeUpdate();
                     } else {
                         File groovyFile;
-
                         if (StringUtils.equals(serverRest.getClientGroovyCrc32(), clientRest.getClientGroovyCrc32())) {
                             groovyFile = new File(source, serverRest.getGroovyPath());
+                            Query query = connection.createQuery("update rest set server_groovy = :server_groovy, server_groovy_crc32 = :server_groovy_crc32, client_groovy = :client_groovy, client_groovy_crc32 = :client_groovy_crc32 where rest_id = :rest_id");
+                            query.addParameter("server_groovy", serverRest.getServerGroovy());
+                            query.addParameter("server_groovy_crc32", serverRest.getServerGroovyCrc32());
+                            query.addParameter("client_groovy", serverRest.getServerGroovy());
+                            query.addParameter("client_groovy_crc32", serverRest.getServerGroovyCrc32());
+                            query.addParameter("rest_id", serverRest.getRestId());
+                            query.executeUpdate();
                         } else {
                             groovyFile = new File(source, serverRest.getGroovyPath() + ".server");
+                            Query query = connection.createQuery("update rest set server_groovy = :server_groovy, server_groovy_crc32 = :server_groovy_crc32 where rest_id = :rest_id");
+                            query.addParameter("server_groovy", serverRest.getServerGroovy());
+                            query.addParameter("server_groovy_crc32", serverRest.getServerGroovyCrc32());
+                            query.addParameter("rest_id", serverRest.getRestId());
+                            query.executeUpdate();
                         }
                         if (groovyFile.exists()) {
                             groovyFile.delete();
@@ -316,11 +342,6 @@ public abstract class Task extends DefaultTask {
                             groovyFile.getParentFile().mkdirs();
                         }
                         FileUtils.write(groovyFile, serverRest.getServerGroovy(), "UTF-8");
-                        Query query = connection.createQuery("update rest set server_groovy = :server_groovy, server_groovy_crc32 = :server_groovy_crc32 where rest_id = :rest_id");
-                        query.addParameter("server_groovy", serverRest.getServerGroovy());
-                        query.addParameter("server_groovy_crc32", serverRest.getServerGroovyCrc32());
-                        query.addParameter("rest_id", serverRest.getRestId());
-                        query.executeUpdate();
                     }
                 }
             }
