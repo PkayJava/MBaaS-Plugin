@@ -3,6 +3,7 @@ package com.angkorteam.mbaas.plugin;
 import com.google.common.base.Strings;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.DefaultTask;
 import org.sql2o.Connection;
 import org.sql2o.Query;
@@ -159,7 +160,7 @@ public abstract class Task extends DefaultTask {
                                 "server_groovy as serverGroovy, " +
                                 "server_groovy_crc32 as serverGroovyCrc32, " +
                                 "groovy_conflicted as groovyConflicted, " +
-                                "page_id as pageId from page where pageId = :pageId");
+                                "page_id as pageId from page where page.page_id = :pageId");
                         query.addParameter("pageId", serverPage.getPageId());
                         clientPage = query.executeAndFetchFirst(Page.class);
                     }
@@ -259,7 +260,7 @@ public abstract class Task extends DefaultTask {
                                 "server_groovy as serverGroovy, " +
                                 "server_groovy_crc32 as serverGroovyCrc32, " +
                                 "groovy_conflicted as groovyConflicted, " +
-                                "rest_id as restId from rest where restId = :restId");
+                                "rest_id as restId from rest where rest.rest_id = :restId");
                         query.addParameter("restId", serverRest.getRestId());
                         clientRest = query.executeAndFetchFirst(Rest.class);
                     }
@@ -384,7 +385,7 @@ public abstract class Task extends DefaultTask {
                         "server_groovy as serverGroovy, " +
                         "server_groovy_crc32 as serverGroovyCrc32, " +
                         "groovy_conflicted as groovyConflicted, " +
-                        "rest_id as restId from rest where groovyPath = :groovyPath");
+                        "rest_id as restId from rest where groovy_path = :groovyPath");
                 query.addParameter("groovyPath", groovyPath);
                 Rest rest = query.executeAndFetchFirst(Rest.class);
                 if (rest != null) {
@@ -394,8 +395,10 @@ public abstract class Task extends DefaultTask {
                         String clientGroovyCrc32 = String.valueOf(FileUtils.checksumCRC32(groovyFile));
                         Rest restGson = new Rest();
                         restGson.setRestId(rest.getRestId());
-                        restGson.setClientGroovy(FileUtils.readFileToString(groovyFile, "UTF-8"));
-                        restGson.setClientGroovyCrc32(clientGroovyCrc32);
+                        if (!StringUtils.equals(rest.getClientGroovyCrc32(), clientGroovyCrc32)) {
+                            restGson.setClientGroovy(FileUtils.readFileToString(groovyFile, "UTF-8"));
+                            restGson.setClientGroovyCrc32(clientGroovyCrc32);
+                        }
                         restGson.setServerGroovyCrc32(rest.getServerGroovyCrc32());
                         sync.addRest(restGson);
                     }
@@ -428,7 +431,7 @@ public abstract class Task extends DefaultTask {
                         "server_groovy as serverGroovy, " +
                         "server_groovy_crc32 as serverGroovyCrc32, " +
                         "groovy_conflicted as groovyConflicted, " +
-                        "page_id as pageId from page where groovyPath = :groovyPath");
+                        "page_id as pageId from page where groovy_path = :groovyPath");
                 query.addParameter("groovyPath", groovyPath);
                 Page page = query.executeAndFetchFirst(Page.class);
                 if (page != null) {
@@ -442,10 +445,14 @@ public abstract class Task extends DefaultTask {
                             String clientGroovyCrc32 = String.valueOf(FileUtils.checksumCRC32(groovyFile));
                             Page pageGson = new Page();
                             pageGson.setPageId(page.getPageId());
-                            pageGson.setClientGroovy(FileUtils.readFileToString(groovyFile, "UTF-8"));
-                            pageGson.setClientGroovyCrc32(clientGroovyCrc32);
-                            pageGson.setClientHtml(FileUtils.readFileToString(htmlFile, "UTF-8"));
-                            pageGson.setClientHtmlCrc32(clientHtmlCrc32);
+                            if (!StringUtils.equals(page.getClientGroovyCrc32(), clientGroovyCrc32)) {
+                                pageGson.setClientGroovy(FileUtils.readFileToString(groovyFile, "UTF-8"));
+                                pageGson.setClientGroovyCrc32(clientGroovyCrc32);
+                            }
+                            if (!StringUtils.equals(page.getClientHtmlCrc32(), clientHtmlCrc32)) {
+                                pageGson.setClientHtml(FileUtils.readFileToString(htmlFile, "UTF-8"));
+                                pageGson.setClientHtmlCrc32(clientHtmlCrc32);
+                            }
                             pageGson.setServerGroovyCrc32(page.getServerGroovyCrc32());
                             sync.addPage(pageGson);
                         }
