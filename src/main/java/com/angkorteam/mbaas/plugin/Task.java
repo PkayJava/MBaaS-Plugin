@@ -492,6 +492,7 @@ public abstract class Task extends DefaultTask {
                                 pageGson.setClientHtml(FileUtils.readFileToString(htmlFile, "UTF-8"));
                             }
                             pageGson.setServerGroovyCrc32(page.getServerGroovyCrc32());
+                            pageGson.setServerHtmlCrc32(page.getServerHtmlCrc32());
                             sync.addPage(pageGson);
                         }
                     }
