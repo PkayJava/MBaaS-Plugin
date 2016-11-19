@@ -403,6 +403,7 @@ public abstract class Task extends DefaultTask {
                     Page pageGson = new Page();
                     pageGson.setPageId(page.getPageId());
                     pageGson.setServerGroovyCrc32(page.getServerGroovyCrc32());
+                    pageGson.setServerHtml(page.getServerHtmlCrc32());
                     sync.addPage(pageGson);
                 }
             }
