@@ -194,7 +194,12 @@ public abstract class Task extends DefaultTask {
                         query.addParameter("page_id", serverPage.getPageId());
                         query.executeUpdate();
                     } else {
-                        File groovyFile = new File(source, serverPage.getGroovyPath() + ".server");
+                        File groovyFile;
+                        if (StringUtils.equals(serverPage.getClientGroovyCrc32(), clientPage.getClientGroovyCrc32())) {
+                            groovyFile = new File(source, serverPage.getGroovyPath());
+                        } else {
+                            groovyFile = new File(source, serverPage.getGroovyPath() + ".server");
+                        }
                         if (groovyFile.exists()) {
                             groovyFile.delete();
                         } else {
@@ -223,7 +228,13 @@ public abstract class Task extends DefaultTask {
                         query.addParameter("page_id", serverPage.getPageId());
                         query.executeUpdate();
                     } else {
-                        File htmlFile = new File(source, serverPage.getHtmlPath() + ".server");
+                        File htmlFile;
+                        if (StringUtils.equals(serverPage.getClientHtmlCrc32(), clientPage.getClientHtmlCrc32())) {
+                            htmlFile = new File(source, serverPage.getHtmlPath());
+                        } else {
+                            htmlFile = new File(source, serverPage.getHtmlPath() + ".server");
+                        }
+
                         if (htmlFile.exists()) {
                             htmlFile.delete();
                         } else {
@@ -292,7 +303,13 @@ public abstract class Task extends DefaultTask {
                         query.addParameter("rest_id", serverRest.getRestId());
                         query.executeUpdate();
                     } else {
-                        File groovyFile = new File(source, serverRest.getGroovyPath() + ".server");
+                        File groovyFile;
+
+                        if (StringUtils.equals(serverRest.getClientGroovyCrc32(), clientRest.getClientGroovyCrc32())) {
+                            groovyFile = new File(source, serverRest.getGroovyPath());
+                        } else {
+                            groovyFile = new File(source, serverRest.getGroovyPath() + ".server");
+                        }
                         if (groovyFile.exists()) {
                             groovyFile.delete();
                         } else {
@@ -395,9 +412,9 @@ public abstract class Task extends DefaultTask {
                         String clientGroovyCrc32 = String.valueOf(FileUtils.checksumCRC32(groovyFile));
                         Rest restGson = new Rest();
                         restGson.setRestId(rest.getRestId());
+                        restGson.setClientGroovyCrc32(clientGroovyCrc32);
                         if (!StringUtils.equals(rest.getClientGroovyCrc32(), clientGroovyCrc32)) {
                             restGson.setClientGroovy(FileUtils.readFileToString(groovyFile, "UTF-8"));
-                            restGson.setClientGroovyCrc32(clientGroovyCrc32);
                         }
                         restGson.setServerGroovyCrc32(rest.getServerGroovyCrc32());
                         sync.addRest(restGson);
@@ -445,13 +462,13 @@ public abstract class Task extends DefaultTask {
                             String clientGroovyCrc32 = String.valueOf(FileUtils.checksumCRC32(groovyFile));
                             Page pageGson = new Page();
                             pageGson.setPageId(page.getPageId());
+                            pageGson.setClientGroovyCrc32(clientGroovyCrc32);
                             if (!StringUtils.equals(page.getClientGroovyCrc32(), clientGroovyCrc32)) {
                                 pageGson.setClientGroovy(FileUtils.readFileToString(groovyFile, "UTF-8"));
-                                pageGson.setClientGroovyCrc32(clientGroovyCrc32);
                             }
+                            pageGson.setClientHtmlCrc32(clientHtmlCrc32);
                             if (!StringUtils.equals(page.getClientHtmlCrc32(), clientHtmlCrc32)) {
                                 pageGson.setClientHtml(FileUtils.readFileToString(htmlFile, "UTF-8"));
-                                pageGson.setClientHtmlCrc32(clientHtmlCrc32);
                             }
                             pageGson.setServerGroovyCrc32(page.getServerGroovyCrc32());
                             sync.addPage(pageGson);
