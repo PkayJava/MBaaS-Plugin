@@ -366,7 +366,7 @@ public abstract class Task extends DefaultTask {
                 File groovyFileServer = new File(source, groovyPath + ".server");
                 if (!groovyFile.exists() && !groovyFileServer.exists()) {
                     Rest restGson = new Rest();
-                    restGson.setRestId(restGson.getRestId());
+                    restGson.setRestId(rest.getRestId());
                     restGson.setServerGroovyCrc32(rest.getServerGroovyCrc32());
                     sync.addRest(restGson);
                 }
