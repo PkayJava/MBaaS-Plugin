@@ -62,7 +62,7 @@ public abstract class Task extends DefaultTask {
     }
 
     protected File lookupSource() {
-        File source = new File(getProject().getProjectDir(), "src/main/java");
+        File source = new File(getProject().getProjectDir(), "src/main/groovy");
         if (!source.exists()) {
             source.mkdirs();
         }
