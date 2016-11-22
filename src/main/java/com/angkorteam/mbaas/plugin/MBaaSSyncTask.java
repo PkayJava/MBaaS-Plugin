@@ -7,9 +7,12 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.HttpRequestWithBody;
 import org.gradle.api.tasks.TaskAction;
 import org.sql2o.Sql2o;
+import org.sqlite.JDBC;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 /**
  * Created by socheat on 11/17/16.
@@ -17,7 +20,9 @@ import java.io.IOException;
 public class MBaaSSyncTask extends Task {
 
     @TaskAction
-    public void mbaasSync() throws IOException {
+    public void mbaasSync() throws IOException, SQLException {
+        JDBC jdbc = new JDBC();
+        DriverManager.registerDriver(jdbc);
         MBaaSExtension extension = getExtension();
         String sqlite = lookupDatabase(extension.getDatabase());
         ensureDatabase(sqlite);
@@ -57,6 +62,7 @@ public class MBaaSSyncTask extends Task {
         } catch (UnirestException e) {
             e.printStackTrace();
         }
+        DriverManager.deregisterDriver(jdbc);
     }
 
 }
