@@ -19,4 +19,5 @@ public class Response {
     public void setData(Sync data) {
         this.data = data;
     }
+
 }
