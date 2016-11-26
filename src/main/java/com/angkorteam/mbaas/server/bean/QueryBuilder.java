@@ -37,6 +37,10 @@ public class QueryBuilder {
         throw new UnsupportedOperationException();
     }
 
+    public void setLimit(long offset, long number) {
+        throw new UnsupportedOperationException();
+    }
+
     public String toSQL() {
         throw new UnsupportedOperationException();
     }
