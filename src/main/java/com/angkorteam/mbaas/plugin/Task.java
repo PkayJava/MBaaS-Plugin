@@ -47,6 +47,18 @@ public abstract class Task extends DefaultTask {
             connection.createQuery("CREATE INDEX IF NOT EXISTS index_page_groovy_conflicted on page(groovy_conflicted)").executeUpdate();
             connection.createQuery("CREATE INDEX IF NOT EXISTS index_page_html_conflicted on page(html_conflicted)").executeUpdate();
             connection.createQuery("CREATE INDEX IF NOT EXISTS index_page_page_id on page(page_id)").executeUpdate();
+
+            connection.createQuery("create table IF NOT EXISTS layout (_id INTEGER PRIMARY KEY AUTOINCREMENT, html_conflicted BOOLEAN, groovy_conflicted BOOLEAN, html_path VARCHAR(255), groovy_path VARCHAR(255), client_groovy TEXT, client_html TEXT, server_groovy TEXT, server_html TEXT, layout_id VARCHAR(100), client_groovy_crc32 VARCHAR(100), server_groovy_crc32 VARCHAR(100), client_html_crc32 VARCHAR(100), server_html_crc32 VARCHAR(100))").executeUpdate();
+            connection.createQuery("CREATE INDEX IF NOT EXISTS index_layout_server_groovy_crc32 on layout(server_groovy_crc32)").executeUpdate();
+            connection.createQuery("CREATE INDEX IF NOT EXISTS index_layout_server_html_crc32 on layout(server_html_crc32)").executeUpdate();
+            connection.createQuery("CREATE INDEX IF NOT EXISTS index_layout_client_groovy_crc32 on layout(client_groovy_crc32)").executeUpdate();
+            connection.createQuery("CREATE INDEX IF NOT EXISTS index_layout_client_html_crc32 on layout(client_html_crc32)").executeUpdate();
+            connection.createQuery("CREATE INDEX IF NOT EXISTS index_layout_html_path on layout(html_path)").executeUpdate();
+            connection.createQuery("CREATE INDEX IF NOT EXISTS index_layout_groovy_path on layout(groovy_path)").executeUpdate();
+            connection.createQuery("CREATE INDEX IF NOT EXISTS index_layout_groovy_conflicted on layout(groovy_conflicted)").executeUpdate();
+            connection.createQuery("CREATE INDEX IF NOT EXISTS index_layout_html_conflicted on layout(html_conflicted)").executeUpdate();
+            connection.createQuery("CREATE INDEX IF NOT EXISTS index_layout_layout_id on layout(layout_id)").executeUpdate();
+
             // connection.createQuery("drop table if exists rest").executeUpdate();
             connection.createQuery("create table IF NOT EXISTS rest (_id INTEGER PRIMARY KEY AUTOINCREMENT, groovy_conflicted BOOLEAN, groovy_path VARCHAR(255), client_groovy TEXT, server_groovy TEXT, rest_id VARCHAR(100), server_groovy_crc32 VARCHAR(100), client_groovy_crc32 VARCHAR(100))").executeUpdate();
             connection.createQuery("CREATE INDEX IF NOT EXISTS index_rest_server_groovy_crc32 on rest(server_groovy_crc32)").executeUpdate();
@@ -374,6 +386,42 @@ public abstract class Task extends DefaultTask {
         }
     }
 
+    protected static void layoutForDeleteSync(File source, Sql2o sql2o, Sync sync) throws IOException {
+        try (Connection connection = sql2o.open()) {
+            Query query = connection.createQuery("select " +
+                    "_id as clientId, " +
+                    "html_path as htmlPath, " +
+                    "client_html as clientHtml, " +
+                    "client_html_crc32 as clientHtmlCrc32, " +
+                    "server_html as serverHtml, " +
+                    "server_html_crc32 as serverHtmlCrc32, " +
+                    "html_conflicted as htmlConflicted, " +
+                    "groovy_path as groovyPath, " +
+                    "client_groovy as clientGroovy, " +
+                    "client_groovy_crc32 as clientGroovyCrc32, " +
+                    "server_groovy as serverGroovy, " +
+                    "server_groovy_crc32 as serverGroovyCrc32, " +
+                    "groovy_conflicted as groovyConflicted, " +
+                    "layout_id as layoutId from layout");
+            List<Layout> layouts = query.executeAndFetch(Layout.class);
+            for (Layout layout : layouts) {
+                String htmlPath = layout.getHtmlPath();
+                String groovyPath = layout.getGroovyPath();
+                File htmlFile = new File(source, htmlPath);
+                File groovyFile = new File(source, groovyPath);
+                File htmlFileServer = new File(source, htmlPath + ".server");
+                File groovyFileServer = new File(source, groovyPath + ".server");
+                if (!htmlFile.exists() && !groovyFile.exists() && !htmlFileServer.exists() && !groovyFileServer.exists()) {
+                    Layout layoutGson = new Layout();
+                    layoutGson.setLayoutId(layout.getLayoutId());
+                    layoutGson.setServerGroovyCrc32(layout.getServerGroovyCrc32());
+                    layoutGson.setServerHtmlCrc32(layout.getServerHtmlCrc32());
+                    sync.addLayout(layoutGson);
+                }
+            }
+        }
+    }
+
     protected static void pageForDeleteSync(File source, Sql2o sql2o, Sync sync) throws IOException {
         try (Connection connection = sql2o.open()) {
             Query query = connection.createQuery("select " +
@@ -495,6 +543,62 @@ public abstract class Task extends DefaultTask {
                             pageGson.setServerGroovyCrc32(page.getServerGroovyCrc32());
                             pageGson.setServerHtmlCrc32(page.getServerHtmlCrc32());
                             sync.addPage(pageGson);
+                        }
+                    }
+                } else {
+                    // create new case is not allow, need to create from mbaas-server
+                }
+            }
+        }
+    }
+
+    protected static void layoutForSync(File source, Sql2o sql2o, Sync sync) throws IOException {
+        String sourcePath = source.getAbsolutePath();
+        Collection<File> files = FileUtils.listFiles(source, new String[]{"groovy"}, true);
+
+        try (Connection connection = sql2o.open()) {
+            // page to sync, html + groovy
+            for (File groovyFile : files) {
+                String groovyPath = groovyFile.getAbsolutePath().substring(sourcePath.length() + 1);
+                Query query = connection.createQuery("select " +
+                        "_id as clientId, " +
+                        "html_path as htmlPath, " +
+                        "client_html as clientHtml, " +
+                        "client_html_crc32 as clientHtmlCrc32, " +
+                        "server_html as serverHtml, " +
+                        "server_html_crc32 as serverHtmlCrc32, " +
+                        "html_conflicted as htmlConflicted, " +
+                        "groovy_path as groovyPath, " +
+                        "client_groovy as clientGroovy, " +
+                        "client_groovy_crc32 as clientGroovyCrc32, " +
+                        "server_groovy as serverGroovy, " +
+                        "server_groovy_crc32 as serverGroovyCrc32, " +
+                        "groovy_conflicted as groovyConflicted, " +
+                        "layout_id as layoutId from layout where groovy_path = :groovyPath");
+                query.addParameter("groovyPath", groovyPath);
+                Layout layout = query.executeAndFetchFirst(Layout.class);
+                if (layout != null) {
+                    File htmlFile = new File(groovyFile.getParent(), FilenameUtils.getBaseName(groovyFile.getName()) + ".html");
+                    if (htmlFile.exists()) {
+                        // server already has
+                        File groovyFileServer = new File(groovyFile.getParent(), groovyFile.getName() + ".server");
+                        File htmlFileServer = new File(htmlFile.getParent(), htmlFile.getName() + ".server");
+                        if ((!layout.isGroovyConflicted() && !layout.isHtmlConflicted()) || (!groovyFileServer.exists() && !htmlFileServer.exists())) {
+                            String clientHtmlCrc32 = String.valueOf(FileUtils.checksumCRC32(htmlFile));
+                            String clientGroovyCrc32 = String.valueOf(FileUtils.checksumCRC32(groovyFile));
+                            Layout LayoutGson = new Layout();
+                            LayoutGson.setLayoutId(layout.getLayoutId());
+                            LayoutGson.setClientGroovyCrc32(clientGroovyCrc32);
+                            if (!StringUtils.equals(layout.getClientGroovyCrc32(), clientGroovyCrc32)) {
+                                LayoutGson.setClientGroovy(FileUtils.readFileToString(groovyFile, "UTF-8"));
+                            }
+                            LayoutGson.setClientHtmlCrc32(clientHtmlCrc32);
+                            if (!StringUtils.equals(layout.getClientHtmlCrc32(), clientHtmlCrc32)) {
+                                LayoutGson.setClientHtml(FileUtils.readFileToString(htmlFile, "UTF-8"));
+                            }
+                            LayoutGson.setServerGroovyCrc32(layout.getServerGroovyCrc32());
+                            LayoutGson.setServerHtmlCrc32(layout.getServerHtmlCrc32());
+                            sync.addLayout(LayoutGson);
                         }
                     }
                 } else {

@@ -30,10 +30,14 @@ public class MBaaSSyncTask extends Task {
         File source = lookupSource();
         Sql2o sql2o = new Sql2o("jdbc:sqlite:" + sqlite, "", "");
         Sync sync = new Sync();
+        // layout to sync, html + groovy
+        layoutForSync(source, sql2o, sync);
         // page to sync, html + groovy
         pageForSync(source, sql2o, sync);
         // rest to sync, groovy
         restForSync(source, sql2o, sync);
+        // layout to delete sync, html + groovy
+        layoutForDeleteSync(source, sql2o, sync);
         // page to delete sync, html + groovy
         pageForDeleteSync(source, sql2o, sync);
         // rest to delete sync, groovy
