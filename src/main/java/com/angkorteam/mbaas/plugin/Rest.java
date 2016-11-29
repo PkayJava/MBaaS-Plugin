@@ -11,6 +11,26 @@ public class Rest {
     private Integer clientId;
 
     @Expose
+    @SerializedName("class")
+    private String clazz;
+
+    @Expose
+    @SerializedName("path")
+    private String path;
+
+    @Expose
+    @SerializedName("method")
+    private String method;
+
+    @Expose
+    @SerializedName("name")
+    private String name;
+
+    @Expose
+    @SerializedName("description")
+    private String description;
+
+    @Expose
     @SerializedName("groovyPath")
     private String groovyPath;
 
@@ -100,5 +120,45 @@ public class Rest {
 
     public void setRestId(String restId) {
         this.restId = restId;
+    }
+
+    public String getClazz() {
+        return clazz;
+    }
+
+    public void setClazz(String clazz) {
+        this.clazz = clazz;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

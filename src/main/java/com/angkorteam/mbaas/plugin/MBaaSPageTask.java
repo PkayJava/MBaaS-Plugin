@@ -1,5 +1,6 @@
 package com.angkorteam.mbaas.plugin;
 
+import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
@@ -7,50 +8,51 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.HttpRequestWithBody;
 import org.gradle.api.tasks.TaskAction;
 import org.sql2o.Sql2o;
-import org.sqlite.JDBC;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
- * Created by socheat on 11/17/16.
+ * Created by socheat on 11/28/16.
  */
-public class MBaaSSyncTask extends Task {
+public class MBaaSPageTask extends Task {
 
     @TaskAction
-    public void mbaasSync() throws IOException, SQLException {
-        JDBC jdbc = new JDBC();
-        DriverManager.registerDriver(jdbc);
+    public void mbaasService() throws IOException, SQLException {
+        String code = (String) getProject().property("code");
+        String path = (String) getProject().property("path");
+        String clazz = (String) getProject().property("class");
+        String title = getProject().hasProperty("title") ? (String) getProject().property("title") : null;
+        String layout = (String) getProject().property("layout");
+        if (Strings.isNullOrEmpty(title)) {
+            title = clazz;
+        }
+        String description = getProject().hasProperty("description") ? (String) getProject().property("description") : null;
+        if (Strings.isNullOrEmpty(description)) {
+            description = title;
+        }
+        Page page = new Page();
+        page.setCode(code);
+        page.setPath(path);
+        page.setClazz(clazz);
+        page.setTitle(title);
+        page.setLayout(layout);
+        page.setDescription(description);
+
         MBaaSExtension extension = getExtension();
         String sqlite = lookupDatabase(extension.getDatabase());
         ensureDatabase(sqlite);
-
+        Gson gson = new Gson();
         File source = lookupSource();
         Sql2o sql2o = new Sql2o("jdbc:sqlite:" + sqlite, "", "");
-        Sync sync = new Sync();
-        // layout to sync, html + groovy
-        layoutForSync(source, sql2o, sync);
-        // page to sync, html + groovy
-        pageForSync(source, sql2o, sync);
-        // rest to sync, groovy
-        restForSync(source, sql2o, sync);
-        // layout to delete sync, html + groovy
-        layoutForDeleteSync(source, sql2o, sync);
-        // page to delete sync, html + groovy
-        pageForDeleteSync(source, sql2o, sync);
-        // rest to delete sync, groovy
-        restForDeleteSync(source, sql2o, sync);
 
-        Gson gson = new Gson();
-
-        String api = getServer() + "/api/system/sync";
+        String api = getServer() + "/api/system/page";
         HttpRequestWithBody request = Unirest.post(api);
         request = request.basicAuth(extension.getLogin(), extension.getPassword()).header("Content-Type", "application/json");
 
         try {
-            HttpResponse<String> response = request.body(gson.toJson(sync)).asString();
+            HttpResponse<String> response = request.body(gson.toJson(page)).asString();
             if (response.getStatus() == 200) {
                 Response temp = gson.fromJson(response.getBody(), Response.class);
                 syncPage(source, sql2o, temp.getData());
@@ -59,7 +61,5 @@ public class MBaaSSyncTask extends Task {
         } catch (UnirestException e) {
             e.printStackTrace();
         }
-        DriverManager.deregisterDriver(jdbc);
     }
-
 }

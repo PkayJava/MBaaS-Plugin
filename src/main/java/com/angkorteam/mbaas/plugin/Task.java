@@ -81,6 +81,17 @@ public abstract class Task extends DefaultTask {
         return source;
     }
 
+    protected String getServer() {
+        MBaaSExtension extension = getExtension();
+        String server = null;
+        if (extension.getServer().endsWith("/")) {
+            server = extension.getServer().substring(0, extension.getServer().length() - 1);
+        } else {
+            server = extension.getServer();
+        }
+        return server;
+    }
+
     protected static void resetRest(File source, Sql2o sql2o) throws IOException {
         try (Connection connection = sql2o.open()) {
             Query query = connection.createQuery("select " +

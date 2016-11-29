@@ -11,6 +11,18 @@ public class Layout {
     private Integer clientId;
 
     @Expose
+    @SerializedName("class")
+    private String clazz;
+
+    @Expose
+    @SerializedName("title")
+    private String title;
+
+    @Expose
+    @SerializedName("description")
+    private String description;
+
+    @Expose
     @SerializedName("htmlPath")
     private String htmlPath;
 
@@ -172,5 +184,29 @@ public class Layout {
 
     public void setHtmlConflicted(boolean htmlConflicted) {
         this.htmlConflicted = htmlConflicted;
+    }
+
+    public String getClazz() {
+        return clazz;
+    }
+
+    public void setClazz(String clazz) {
+        this.clazz = clazz;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
