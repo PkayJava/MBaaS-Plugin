@@ -290,7 +290,7 @@ public abstract class Task extends DefaultTask {
     }
 
     protected static void syncLayout(File source, Sql2o sql2o, Sync sync) throws IOException {
-        if (sync != null && sync.getPages() != null && !sync.getPages().isEmpty()) {
+        if (sync != null && sync.getLayouts() != null && !sync.getLayouts().isEmpty()) {
             try (Connection connection = sql2o.open()) {
                 for (Layout serverLayout : sync.getLayouts()) {
                     if (!serverLayout.isGroovyConflicted() && !serverLayout.isHtmlConflicted() && Strings.isNullOrEmpty(serverLayout.getServerGroovyCrc32()) && Strings.isNullOrEmpty(serverLayout.getServerHtmlCrc32())) {
