@@ -41,23 +41,14 @@ public class MBaaSPageTask extends Task {
         page.setDescription(description);
 
         MBaaSExtension extension = getExtension();
-        String sqlite = lookupDatabase(extension.getDatabase());
-        ensureDatabase(sqlite);
         Gson gson = new Gson();
-        File source = lookupSource();
-        Sql2o sql2o = new Sql2o("jdbc:sqlite:" + sqlite, "", "");
 
         String api = getServer() + "/api/system/page";
         HttpRequestWithBody request = Unirest.post(api);
         request = request.basicAuth(extension.getLogin(), extension.getPassword()).header("Content-Type", "application/json");
 
         try {
-            HttpResponse<String> response = request.body(gson.toJson(page)).asString();
-            if (response.getStatus() == 200) {
-                Response temp = gson.fromJson(response.getBody(), Response.class);
-                syncPage(source, sql2o, temp.getData());
-                syncRest(source, sql2o, temp.getData());
-            }
+            request.body(gson.toJson(page)).asString();
         } catch (UnirestException e) {
             e.printStackTrace();
         }
