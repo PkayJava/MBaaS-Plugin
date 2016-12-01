@@ -55,6 +55,7 @@ public class MBaaSSyncTask extends Task {
                 Response temp = gson.fromJson(response.getBody(), Response.class);
                 syncPage(source, sql2o, temp.getData());
                 syncRest(source, sql2o, temp.getData());
+                syncLayout(source, sql2o, temp.getData());
             }
         } catch (UnirestException e) {
             e.printStackTrace();

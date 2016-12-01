@@ -289,6 +289,138 @@ public abstract class Task extends DefaultTask {
         }
     }
 
+    protected static void syncLayout(File source, Sql2o sql2o, Sync sync) throws IOException {
+        if (sync != null && sync.getPages() != null && !sync.getPages().isEmpty()) {
+            try (Connection connection = sql2o.open()) {
+                for (Layout serverLayout : sync.getLayouts()) {
+                    if (!serverLayout.isGroovyConflicted() && !serverLayout.isHtmlConflicted() && Strings.isNullOrEmpty(serverLayout.getServerGroovyCrc32()) && Strings.isNullOrEmpty(serverLayout.getServerHtmlCrc32())) {
+                        Query query = connection.createQuery("delete from layout where layout_id = :layout_id");
+                        query.addParameter("layout_id", serverLayout.getLayoutId());
+                        query.executeUpdate();
+                        continue;
+                    }
+                    Layout clientLayout;
+                    {
+                        Query query = connection.createQuery("select " +
+                                "_id as clientId, " +
+                                "html_path as htmlPath, " +
+                                "client_html as clientHtml, " +
+                                "client_html_crc32 as clientHtmlCrc32, " +
+                                "server_html as serverHtml, " +
+                                "server_html_crc32 as serverHtmlCrc32, " +
+                                "html_conflicted as htmlConflicted, " +
+                                "groovy_path as groovyPath, " +
+                                "client_groovy as clientGroovy, " +
+                                "client_groovy_crc32 as clientGroovyCrc32, " +
+                                "server_groovy as serverGroovy, " +
+                                "server_groovy_crc32 as serverGroovyCrc32, " +
+                                "groovy_conflicted as groovyConflicted, " +
+                                "layout_id as layoutId from layout where layout.layout_id = :layoutId");
+                        query.addParameter("layoutId", serverLayout.getLayoutId());
+                        clientLayout = query.executeAndFetchFirst(Layout.class);
+                    }
+                    if (clientLayout == null) {
+                        Query query = connection.createQuery("insert into layout(layout_id, html_path, groovy_path) values(:layout_id, :html_path, :groovy_path)");
+                        query.addParameter("layout_id", serverLayout.getLayoutId());
+                        query.addParameter("groovy_path", serverLayout.getGroovyPath());
+                        query.addParameter("html_path", serverLayout.getHtmlPath());
+                        query.executeUpdate();
+                    }
+                    {
+                        Query query = connection.createQuery("update layout set groovy_conflicted = :groovy_conflicted, html_conflicted = :html_conflicted where layout_id = :layout_id");
+                        query.addParameter("groovy_conflicted", serverLayout.isGroovyConflicted());
+                        query.addParameter("html_conflicted", serverLayout.isHtmlConflicted());
+                        query.addParameter("layout_id", serverLayout.getLayoutId());
+                        query.executeUpdate();
+                    }
+                    if (!serverLayout.isGroovyConflicted()) {
+                        Query query = connection.createQuery("update layout set client_groovy = :client_groovy, client_groovy_crc32 = :client_groovy_crc32, server_groovy = :server_groovy, server_groovy_crc32 = :server_groovy_crc32 where layout_id = :layout_id");
+                        File groovyFile = new File(source, serverLayout.getGroovyPath());
+                        if (groovyFile.exists()) {
+                            groovyFile.delete();
+                        } else {
+                            groovyFile.getParentFile().mkdirs();
+                        }
+                        FileUtils.write(groovyFile, serverLayout.getServerGroovy(), "UTF-8");
+                        query.addParameter("client_groovy", serverLayout.getServerGroovy());
+                        query.addParameter("client_groovy_crc32", serverLayout.getServerGroovyCrc32());
+                        query.addParameter("server_groovy", serverLayout.getServerGroovy());
+                        query.addParameter("server_groovy_crc32", serverLayout.getServerGroovyCrc32());
+                        query.addParameter("layout_id", serverLayout.getLayoutId());
+                        query.executeUpdate();
+                    } else {
+                        File groovyFile;
+                        if (StringUtils.equals(serverLayout.getClientGroovyCrc32(), clientLayout.getClientGroovyCrc32())) {
+                            groovyFile = new File(source, serverLayout.getGroovyPath());
+                            Query query = connection.createQuery("update layout set client_groovy = :client_groovy, client_groovy_crc32 = :client_groovy_crc32, server_groovy = :server_groovy, server_groovy_crc32 = :server_groovy_crc32 where layout_id = :layout_id");
+                            query.addParameter("server_groovy", serverLayout.getServerGroovy());
+                            query.addParameter("server_groovy_crc32", serverLayout.getServerGroovyCrc32());
+                            query.addParameter("client_groovy", serverLayout.getServerGroovy());
+                            query.addParameter("client_groovy_crc32", serverLayout.getServerGroovyCrc32());
+                            query.addParameter("layout_id", serverLayout.getLayoutId());
+                            query.executeUpdate();
+                        } else {
+                            groovyFile = new File(source, serverLayout.getGroovyPath() + ".server");
+                            Query query = connection.createQuery("update layout set server_groovy = :server_groovy, server_groovy_crc32 = :server_groovy_crc32 where layout_id = :layout_id");
+                            query.addParameter("server_groovy", serverLayout.getServerGroovy());
+                            query.addParameter("server_groovy_crc32", serverLayout.getServerGroovyCrc32());
+                            query.addParameter("layout_id", serverLayout.getLayoutId());
+                            query.executeUpdate();
+                        }
+                        if (groovyFile.exists()) {
+                            groovyFile.delete();
+                        } else {
+                            groovyFile.getParentFile().mkdirs();
+                        }
+                        FileUtils.write(groovyFile, serverLayout.getServerGroovy(), "UTF-8");
+                    }
+
+                    if (!serverLayout.isHtmlConflicted()) {
+                        Query query = connection.createQuery("update layout set client_html = :client_html, client_html_crc32 = :client_html_crc32, server_html = :server_html, server_html_crc32 = :server_html_crc32 where layout_id = :layout_id");
+                        File htmlFile = new File(source, serverLayout.getHtmlPath());
+                        if (htmlFile.exists()) {
+                            htmlFile.delete();
+                        } else {
+                            htmlFile.getParentFile().mkdirs();
+                        }
+                        FileUtils.write(htmlFile, serverLayout.getServerHtml(), "UTF-8");
+                        query.addParameter("client_html", serverLayout.getServerHtml());
+                        query.addParameter("client_html_crc32", serverLayout.getServerHtmlCrc32());
+                        query.addParameter("server_html", serverLayout.getServerHtml());
+                        query.addParameter("server_html_crc32", serverLayout.getServerHtmlCrc32());
+                        query.addParameter("layout_id", serverLayout.getLayoutId());
+                        query.executeUpdate();
+                    } else {
+                        File htmlFile;
+                        if (StringUtils.equals(serverLayout.getClientHtmlCrc32(), clientLayout.getClientHtmlCrc32())) {
+                            htmlFile = new File(source, serverLayout.getHtmlPath());
+                            Query query = connection.createQuery("update layout set client_html_crc32 = :client_html_crc32, client_html = :client_html, server_html = :server_html, server_html_crc32 = :server_html_crc32 where layout_id = :layout_id");
+                            query.addParameter("server_html", serverLayout.getServerHtml());
+                            query.addParameter("server_html_crc32", serverLayout.getServerHtmlCrc32());
+                            query.addParameter("client_html", serverLayout.getServerHtml());
+                            query.addParameter("client_html_crc32", serverLayout.getServerHtmlCrc32());
+                            query.addParameter("layout_id", serverLayout.getLayoutId());
+                            query.executeUpdate();
+                        } else {
+                            htmlFile = new File(source, serverLayout.getHtmlPath() + ".server");
+                            Query query = connection.createQuery("update layout set server_html = :server_html, server_html_crc32 = :server_html_crc32 where layout_id = :layout_id");
+                            query.addParameter("server_html", serverLayout.getServerHtml());
+                            query.addParameter("server_html_crc32", serverLayout.getServerHtmlCrc32());
+                            query.addParameter("layout_id", serverLayout.getLayoutId());
+                            query.executeUpdate();
+                        }
+                        if (htmlFile.exists()) {
+                            htmlFile.delete();
+                        } else {
+                            htmlFile.getParentFile().mkdirs();
+                        }
+                        FileUtils.write(htmlFile, serverLayout.getServerHtml(), "UTF-8");
+                    }
+                }
+            }
+        }
+    }
+
     protected static void syncRest(File source, Sql2o sql2o, Sync sync) throws IOException {
         if (sync != null && sync.getRests() != null && !sync.getRests().isEmpty()) {
             try (Connection connection = sql2o.open()) {
