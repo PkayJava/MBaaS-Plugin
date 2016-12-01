@@ -30,7 +30,7 @@ public class MBaaSLayoutTask extends Task {
             description = title;
         }
         Layout layout = new Layout();
-        layout.setClazz(clazz);
+        layout.setClassName(clazz);
         layout.setTitle(title);
         layout.setDescription(description);
 

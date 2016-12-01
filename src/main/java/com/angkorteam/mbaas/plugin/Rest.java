@@ -11,8 +11,8 @@ public class Rest {
     private Integer clientId;
 
     @Expose
-    @SerializedName("class")
-    private String clazz;
+    @SerializedName("className")
+    private String className;
 
     @Expose
     @SerializedName("path")
@@ -122,12 +122,12 @@ public class Rest {
         this.restId = restId;
     }
 
-    public String getClazz() {
-        return clazz;
+    public String getClassName() {
+        return className;
     }
 
-    public void setClazz(String clazz) {
-        this.clazz = clazz;
+    public void setClassName(String className) {
+        this.className = className;
     }
 
     public String getPath() {

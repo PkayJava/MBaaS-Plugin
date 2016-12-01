@@ -11,8 +11,8 @@ public class Layout {
     private Integer clientId;
 
     @Expose
-    @SerializedName("class")
-    private String clazz;
+    @SerializedName("className")
+    private String className;
 
     @Expose
     @SerializedName("title")
@@ -186,12 +186,12 @@ public class Layout {
         this.htmlConflicted = htmlConflicted;
     }
 
-    public String getClazz() {
-        return clazz;
+    public String getClassName() {
+        return className;
     }
 
-    public void setClazz(String clazz) {
-        this.clazz = clazz;
+    public void setClassName(String className) {
+        this.className = className;
     }
 
     public String getTitle() {

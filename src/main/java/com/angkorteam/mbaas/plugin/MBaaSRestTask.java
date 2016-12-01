@@ -20,12 +20,12 @@ public class MBaaSRestTask extends Task {
 
     @TaskAction
     public void mbaasService() throws IOException, SQLException {
-        String clazz = (String) getProject().property("class");
+        String className = (String) getProject().property("className");
         String path = (String) getProject().property("path");
         String name = getProject().hasProperty("name") ? (String) getProject().property("name") : null;
         String method = (String) getProject().property("method");
         if (Strings.isNullOrEmpty(name)) {
-            name = clazz;
+            name = className;
         }
         String description = getProject().hasProperty("description") ? (String) getProject().property("description") : null;
         if (Strings.isNullOrEmpty(description)) {
@@ -33,7 +33,7 @@ public class MBaaSRestTask extends Task {
         }
 
         Rest rest = new Rest();
-        rest.setClazz(clazz);
+        rest.setClassName(className);
         rest.setPath(path);
         rest.setName(name);
         rest.setMethod(method);

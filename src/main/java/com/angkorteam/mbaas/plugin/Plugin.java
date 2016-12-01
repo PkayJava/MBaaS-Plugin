@@ -19,6 +19,10 @@ public class Plugin implements org.gradle.api.Plugin<Project> {
 
         project.getTasks().withType(MBaaSRestTask.class);
         project.getTasks().create("mbaasRest", MBaaSRestTask.class);
+
+        project.getTasks().withType(MBaaSLayoutTask.class);
+        project.getTasks().create("mbaasLayout", MBaaSLayoutTask.class);
+
     }
 
 }
