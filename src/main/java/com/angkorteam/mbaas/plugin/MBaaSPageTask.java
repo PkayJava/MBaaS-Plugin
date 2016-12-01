@@ -20,25 +20,25 @@ public class MBaaSPageTask extends Task {
 
     @TaskAction
     public void mbaasPage() throws IOException, SQLException {
-        String pageCode = (String) getProject().property("pageCode");
-        String pagePath = (String) getProject().property("pagePath");
+        String code = (String) getProject().property("code");
+        String mountPath = (String) getProject().property("mountPath");
         String className = (String) getProject().property("className");
-        String pageTitle = getProject().hasProperty("pageTitle") ? (String) getProject().property("pageTitle") : null;
-        String pageLayout = (String) getProject().property("pageLayout");
-        if (Strings.isNullOrEmpty(pageTitle)) {
-            pageTitle = className;
+        String title = getProject().hasProperty("title") ? (String) getProject().property("title") : null;
+        String layout = (String) getProject().property("layout");
+        if (Strings.isNullOrEmpty(title)) {
+            title = className;
         }
-        String pageDescription = getProject().hasProperty("pageDescription") ? (String) getProject().property("pageDescription") : null;
-        if (Strings.isNullOrEmpty(pageDescription)) {
-            pageDescription = pageTitle;
+        String description = getProject().hasProperty("description") ? (String) getProject().property("description") : null;
+        if (Strings.isNullOrEmpty(description)) {
+            description = title;
         }
         Page page = new Page();
-        page.setCode(pageCode);
-        page.setPath(pagePath);
+        page.setCode(code);
+        page.setPath(mountPath);
         page.setClassName(className);
-        page.setTitle(pageTitle);
-        page.setLayout(pageLayout);
-        page.setDescription(pageDescription);
+        page.setTitle(title);
+        page.setLayout(layout);
+        page.setDescription(description);
 
         MBaaSExtension extension = getExtension();
         String sqlite = lookupDatabase(extension.getDatabase());

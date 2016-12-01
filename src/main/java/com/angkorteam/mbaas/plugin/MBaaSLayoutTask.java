@@ -21,18 +21,18 @@ public class MBaaSLayoutTask extends Task {
     @TaskAction
     public void mbaasLayout() throws IOException, SQLException {
         String className = (String) getProject().property("className");
-        String layoutTitle = getProject().hasProperty("layoutTitle") ? (String) getProject().property("layoutTitle") : null;
-        if (Strings.isNullOrEmpty(layoutTitle)) {
-            layoutTitle = className;
+        String title = getProject().hasProperty("title") ? (String) getProject().property("title") : null;
+        if (Strings.isNullOrEmpty(title)) {
+            title = className;
         }
-        String layoutDescription = getProject().hasProperty("layoutDescription") ? (String) getProject().property("layoutDescription") : null;
-        if (Strings.isNullOrEmpty(layoutDescription)) {
-            layoutDescription = layoutTitle;
+        String description = getProject().hasProperty("description") ? (String) getProject().property("description") : null;
+        if (Strings.isNullOrEmpty(description)) {
+            description = title;
         }
         Layout layout = new Layout();
         layout.setClassName(className);
-        layout.setTitle(layoutTitle);
-        layout.setDescription(layoutDescription);
+        layout.setTitle(title);
+        layout.setDescription(description);
 
         MBaaSExtension extension = getExtension();
         String sqlite = lookupDatabase(extension.getDatabase());
