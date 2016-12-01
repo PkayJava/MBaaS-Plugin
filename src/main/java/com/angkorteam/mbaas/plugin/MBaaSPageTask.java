@@ -19,26 +19,26 @@ import java.sql.SQLException;
 public class MBaaSPageTask extends Task {
 
     @TaskAction
-    public void mbaasService() throws IOException, SQLException {
-        String code = (String) getProject().property("code");
-        String path = (String) getProject().property("path");
+    public void mbaasPage() throws IOException, SQLException {
+        String pageCode = (String) getProject().property("pageCode");
+        String pagePath = (String) getProject().property("pagePath");
         String className = (String) getProject().property("className");
-        String title = getProject().hasProperty("title") ? (String) getProject().property("title") : null;
-        String layout = (String) getProject().property("layout");
-        if (Strings.isNullOrEmpty(title)) {
-            title = className;
+        String pageTitle = getProject().hasProperty("pageTitle") ? (String) getProject().property("pageTitle") : null;
+        String pageLayout = (String) getProject().property("pageLayout");
+        if (Strings.isNullOrEmpty(pageTitle)) {
+            pageTitle = className;
         }
-        String description = getProject().hasProperty("description") ? (String) getProject().property("description") : null;
-        if (Strings.isNullOrEmpty(description)) {
-            description = title;
+        String pageDescription = getProject().hasProperty("pageDescription") ? (String) getProject().property("pageDescription") : null;
+        if (Strings.isNullOrEmpty(pageDescription)) {
+            pageDescription = pageTitle;
         }
         Page page = new Page();
-        page.setCode(code);
-        page.setPath(path);
+        page.setCode(pageCode);
+        page.setPath(pagePath);
         page.setClassName(className);
-        page.setTitle(title);
-        page.setLayout(layout);
-        page.setDescription(description);
+        page.setTitle(pageTitle);
+        page.setLayout(pageLayout);
+        page.setDescription(pageDescription);
 
         MBaaSExtension extension = getExtension();
         String sqlite = lookupDatabase(extension.getDatabase());
