@@ -22,11 +22,11 @@ public class MBaaSPageTask extends Task {
     public void mbaasService() throws IOException, SQLException {
         String code = (String) getProject().property("code");
         String path = (String) getProject().property("path");
-        String clazz = (String) getProject().property("class");
+        String className = (String) getProject().property("className");
         String title = getProject().hasProperty("title") ? (String) getProject().property("title") : null;
         String layout = (String) getProject().property("layout");
         if (Strings.isNullOrEmpty(title)) {
-            title = clazz;
+            title = className;
         }
         String description = getProject().hasProperty("description") ? (String) getProject().property("description") : null;
         if (Strings.isNullOrEmpty(description)) {
@@ -35,7 +35,7 @@ public class MBaaSPageTask extends Task {
         Page page = new Page();
         page.setCode(code);
         page.setPath(path);
-        page.setClazz(clazz);
+        page.setClassName(className);
         page.setTitle(title);
         page.setLayout(layout);
         page.setDescription(description);
