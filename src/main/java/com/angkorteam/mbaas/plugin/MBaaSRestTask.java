@@ -43,6 +43,9 @@ public class MBaaSRestTask extends Task {
         String sqlite = lookupDatabase(extension.getDatabase());
         ensureDatabase(sqlite);
         Gson gson = new Gson();
+
+        System.out.println(gson.toJson(rest));
+
         File source = lookupSource();
         Sql2o sql2o = new Sql2o("jdbc:sqlite:" + sqlite, "", "");
 
