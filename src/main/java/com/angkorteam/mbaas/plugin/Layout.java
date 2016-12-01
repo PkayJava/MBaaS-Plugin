@@ -31,7 +31,7 @@ public class Layout {
     private String groovyPath;
 
     @Expose
-    @SerializedName("pageId")
+    @SerializedName("layoutId")
     private String layoutId;
 
     @Expose

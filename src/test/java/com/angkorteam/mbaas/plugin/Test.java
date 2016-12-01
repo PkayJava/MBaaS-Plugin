@@ -21,10 +21,11 @@ public class Test {
     public static void main(String[] args) throws Throwable {
         JDBC jdbc = new JDBC();
         DriverManager.registerDriver(jdbc);
-        String sqlite = "/opt/home/socheat/Documents/git/PkayJava/MBaaS-Demo/mbaas.db";
+        String testProject = "/opt/home/socheat/Documents/git/PkayJava/MBaaS-Demo";
+        String sqlite = testProject + "/mbaas.db";
         MBaaSSyncTask.ensureDatabase(sqlite);
 
-        File source = new File("/opt/home/socheat/Documents/git/PkayJava/MBaaS-Demo");
+        File source = new File(testProject + "/src/main/groovy");
         Sql2o sql2o = new Sql2o("jdbc:sqlite:" + sqlite, "", "");
         Sync sync = new Sync();
         // layout to sync, html + groovy
