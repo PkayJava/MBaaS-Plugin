@@ -1,7 +1,7 @@
 package com.angkorteam.mbaas.server.page;
 
-import com.angkorteam.framework.extension.wicket.AdminLTEPage;
 import com.angkorteam.mbaas.model.entity.tables.pojos.MenuItemPojo;
+import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.border.Border;
 
 import java.util.List;
@@ -9,8 +9,7 @@ import java.util.List;
 /**
  * Created by socheat on 11/19/16.
  */
-public abstract class MBaaSPage extends AdminLTEPage implements UUIDPage {
-
+public abstract class MBaaSPage extends WebPage implements UUIDPage {
 
     @Override
     protected final void onInitialize() {

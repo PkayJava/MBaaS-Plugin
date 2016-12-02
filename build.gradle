@@ -32,7 +32,6 @@ dependencies {
     compile 'com.google.guava:guava:' + '20.0'
     compile 'org.apache.commons:commons-lang3:' + '3.5'
     compile 'org.apache.wicket:wicket-core:' + '8.0.0-M2'
-    compile 'com.angkorteam.framework.extension:framework-extension:' + '1.1.6'
     compile 'org.codehaus.groovy:groovy-all:' + '2.4.7'
     compile 'org.springframework:spring-web:' + '4.3.4.RELEASE'
     compile 'org.springframework:spring-jdbc:' + '4.3.4.RELEASE'

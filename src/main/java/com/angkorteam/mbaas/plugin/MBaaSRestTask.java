@@ -8,9 +8,7 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.HttpRequestWithBody;
 import org.gradle.api.tasks.TaskAction;
-import org.sql2o.Sql2o;
 
-import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -48,6 +46,7 @@ public class MBaaSRestTask extends Task {
         request = request.basicAuth(extension.getLogin(), extension.getPassword()).header("Content-Type", "application/json");
 
         try {
+            
             HttpResponse<String> response = request.body(gson.toJson(rest)).asString();
             if (response.getStatus() != 200) {
                 RestResponse temp = gson.fromJson(response.getBody(), RestResponse.class);
