@@ -1,4 +1,4 @@
-package om.angkorteam.mbaas.server.provider;
+package com.angkorteam.mbaas.server.provider;
 
 import com.angkorteam.framework.extension.share.provider.TableProvider;
 import com.angkorteam.framework.extension.wicket.extensions.markup.html.repeater.data.table.filter.Calendar;
