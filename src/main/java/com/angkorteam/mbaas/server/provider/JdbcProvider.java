@@ -67,4 +67,12 @@ public class JdbcProvider extends SortableDataProvider<Map<String, Object>, Stri
     public IModel<Map<String, Object>> model(Map<String, Object> object) {
         throw new UnsupportedOperationException();
     }
+
+    public void addWhere(String filter) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void addHaving(String filter) {
+        throw new UnsupportedOperationException();
+    }
 }
