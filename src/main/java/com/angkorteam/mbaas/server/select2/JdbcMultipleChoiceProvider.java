@@ -52,4 +52,8 @@ public class JdbcMultipleChoiceProvider extends MultipleChoiceProvider<Item> {
         throw new UnsupportedOperationException();
     }
 
+    public void addWhere(String filter) {
+        throw new UnsupportedOperationException();
+    }
+
 }

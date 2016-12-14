@@ -50,4 +50,8 @@ public class JdbcSingleChoiceProvider extends SingleChoiceProvider<Item> {
     public Item getObject(String id, IModel<? extends List<? extends Item>> choices) {
         throw new UnsupportedOperationException();
     }
+
+    public void addWhere(String filter) {
+        throw new UnsupportedOperationException();
+    }
 }
