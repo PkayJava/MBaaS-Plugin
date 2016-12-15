@@ -1,6 +1,5 @@
 package com.angkorteam.mbaas.server.spring;
 
-import com.angkorteam.mbaas.plain.response.RestResponse;
 import org.springframework.http.ResponseEntity;
 
 import javax.servlet.http.HttpServletRequest;
@@ -11,7 +10,7 @@ import java.util.Map;
  */
 public interface RestService {
 
-    ResponseEntity<RestResponse> service(HttpServletRequest request, Map<String, String> pathVariables) throws Throwable;
+    ResponseEntity<?> service(HttpServletRequest request, Map<String, String> pathVariables) throws Throwable;
 
     default String lookupUserRole(HttpServletRequest request, Map<String, String> pathVariables) {
         throw new UnsupportedOperationException();
