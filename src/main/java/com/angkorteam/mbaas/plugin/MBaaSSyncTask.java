@@ -21,6 +21,8 @@ public class MBaaSSyncTask extends Task {
 
     @TaskAction
     public void mbaasSync() throws IOException, SQLException {
+        Unirest.setTimeouts(0, 0);
+
         JDBC jdbc = new JDBC();
         DriverManager.registerDriver(jdbc);
         MBaaSExtension extension = getExtension();
