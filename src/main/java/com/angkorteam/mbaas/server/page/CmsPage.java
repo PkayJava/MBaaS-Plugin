@@ -1,5 +1,6 @@
 package com.angkorteam.mbaas.server.page;
 
+import com.angkorteam.mbaas.server.Session;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.markup.IMarkupResourceStreamProvider;
 import org.apache.wicket.util.resource.IResourceStream;
@@ -16,6 +17,11 @@ public abstract class CmsPage extends MBaaSPage implements IMarkupResourceStream
 
     @Override
     public final IResourceStream getMarkupResourceStream(MarkupContainer container, Class<?> containerClass) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Session getSession() {
         throw new UnsupportedOperationException();
     }
 
