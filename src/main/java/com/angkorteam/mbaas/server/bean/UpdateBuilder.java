@@ -1,15 +1,15 @@
 package com.angkorteam.mbaas.server.bean;
 
 /**
- * Created by socheat on 11/25/16.
+ * Created by socheatkhauv on 12/22/16.
  */
-public class InsertBuilder {
+public class UpdateBuilder {
 
-    public InsertBuilder(String table) {
+    public UpdateBuilder(String table) {
         throw new UnsupportedOperationException();
     }
 
-    public void addField(String name, String value) {
+    public void addField(String field) {
         throw new UnsupportedOperationException();
     }
 
