@@ -13,7 +13,15 @@ import java.util.List;
 public class JdbcMultipleChoiceProvider extends MultipleChoiceProvider<Item> {
 
 
+    public JdbcMultipleChoiceProvider(String table, String idField) {
+        throw new UnsupportedOperationException();
+    }
+
     public JdbcMultipleChoiceProvider(String table, String idField, String valueField) {
+        throw new UnsupportedOperationException();
+    }
+
+    public JdbcMultipleChoiceProvider(String table, String idField, String queryField, String labelField) {
         throw new UnsupportedOperationException();
     }
 
