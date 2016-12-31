@@ -68,11 +68,15 @@ public class JdbcProvider extends SortableDataProvider<Map<String, Object>, Stri
         throw new UnsupportedOperationException();
     }
 
-    public void addWhere(String filter) {
+    public void addWhere(String whereFilter) {
         throw new UnsupportedOperationException();
     }
 
-    public void addHaving(String filter) {
+    public void addHaving(String havingFilter) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void addJoin(String join) {
         throw new UnsupportedOperationException();
     }
 }
