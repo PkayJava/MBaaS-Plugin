@@ -12,7 +12,15 @@ import java.util.List;
  */
 public class JdbcSingleChoiceProvider extends SingleChoiceProvider<Item> {
 
-    public JdbcSingleChoiceProvider(String table, String idField, String valueField) {
+    public JdbcSingleChoiceProvider(String table, String idField) {
+        throw new UnsupportedOperationException();
+    }
+
+    public JdbcSingleChoiceProvider(String table, String idField, String queryField) {
+        throw new UnsupportedOperationException();
+    }
+
+    public JdbcSingleChoiceProvider(String table, String idField, String queryField, String labelField) {
         throw new UnsupportedOperationException();
     }
 
