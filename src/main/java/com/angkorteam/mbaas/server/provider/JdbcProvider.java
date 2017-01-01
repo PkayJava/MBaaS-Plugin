@@ -79,4 +79,12 @@ public class JdbcProvider extends SortableDataProvider<Map<String, Object>, Stri
     public void addJoin(String join) {
         throw new UnsupportedOperationException();
     }
+
+    public void setGroupBy(String groupBy) {
+        throw new UnsupportedOperationException();
+    }
+
+    public String getGroupBy() {
+        throw new UnsupportedOperationException();
+    }
 }
